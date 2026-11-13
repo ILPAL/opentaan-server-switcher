@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>opentaan-switcher</AssemblyName>
+    <RootNamespace>OpenTaan.ServerSwitcher.Cli</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenTaan.ServerSwitcher.Core\OpenTaan.ServerSwitcher.Core.csproj" />
+  </ItemGroup>
+
+</Project>
