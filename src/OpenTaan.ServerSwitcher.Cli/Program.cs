@@ -64,7 +64,7 @@ public static class Program
             Console.Error.WriteLine("Run 'opentaan-switcher --help' for usage.");
             return 2;
         }
-        catch (Exception ex) when (ex is OmFormatException or FormatException or IOException or UnauthorizedAccessException or InvalidOperationException)
+        catch (Exception ex) when (ex is OmFormatException or FormatException or IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException)
         {
             Console.Error.WriteLine($"error: {ex.Message}");
             return 1;
@@ -126,6 +126,11 @@ public static class Program
     {
         var path = o.Positional(0, "file.0m");
         var ip = o.Positional(1, "ip");
+        if (string.IsNullOrWhiteSpace(ip))
+        {
+            throw new UsageException("<ip> must not be empty.");
+        }
+
         var port = o.Value("--port");
         var output = o.Value("-o") ?? o.Value("--output") ?? path;
 
@@ -243,11 +248,6 @@ public static class Program
             return (content.Container, content.Tree.Header);
         }
 
-        return (OmContainerInfo.TaanDefault, OmTree.DefaultHeader);
-    }
-
-    private static void Save(ConfigDocument document, string output, bool noBackup)
-    {
         if (File.Exists(output))
         {
             OmFileContent existing;
@@ -265,6 +265,11 @@ public static class Program
             return (existing.Container, existing.Tree.Header);
         }
 
+        return (OmContainerInfo.TaanDefault, OmTree.DefaultHeader);
+    }
+
+    private static void Save(ConfigDocument document, string output, bool noBackup)
+    {
         var result = document.Save(output, createBackup: !noBackup);
         Report(result);
     }
