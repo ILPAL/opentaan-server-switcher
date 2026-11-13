@@ -84,7 +84,7 @@ public sealed class ConfigDocument
 
     /// <summary>
     /// Saves to <paramref name="path"/> (or the opened file), re-encrypting with the original seed.
-    /// The current tree becomes the new baseline; the undo history is kept.
+    /// The saved file becomes the document's file and the current tree its new baseline; the undo history is kept.
     /// </summary>
     public OmSaveResult Save(string? path = null, bool createBackup = true)
     {
@@ -98,5 +98,15 @@ public sealed class ConfigDocument
         History.BreakMerge();
         Changed?.Invoke(this, EventArgs.Empty);
         return result;
+    }
+
+    /// <summary>
+    /// Writes the current tree to <paramref name="path"/> as a separate copy (original seed reused).
+    /// The document keeps its own file path, baseline and unsaved-changes state.
+    /// </summary>
+    public OmSaveResult SaveCopy(string path, bool createBackup = true)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        return OmFile.Save(path, Container, TreeHeader, Root, Trailer, createBackup);
     }
 }

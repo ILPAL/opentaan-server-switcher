@@ -25,6 +25,26 @@ public class RegressionTests
         ServerEndpoints.FindChannels(OmFile.Load(path).Tree.Root)[0].GetValue("ip");
 
     [Fact]
+    public void SaveCopy_WritesCopy_ButKeepsEditingTheOriginal()
+    {
+        using var temp = new Fixtures.TempDirectory();
+        var doc = OpenSample(temp);
+        var original = doc.FilePath!;
+        var channel = ServerEndpoints.FindChannels(doc.Root)[0];
+        doc.Execute(new SetAttributeValueCommand(channel, channel.FindAttribute("ip")!, "10.9.9.9"));
+
+        var copy = doc.SaveCopy(temp.File("copy.0m"));
+
+        Assert.Equal(original, doc.FilePath);
+        Assert.True(doc.IsModified);
+        Assert.Equal("10.9.9.9", FirstIp(copy.Path));
+        Assert.Equal("10.0.0.1", FirstIp(original));
+
+        doc.Save();
+        Assert.Equal("10.9.9.9", FirstIp(original));
+    }
+
+    [Fact]
     public void Save_EndsUndoMerge_SoUndoStopsAtTheSavedValue()
     {
         using var temp = new Fixtures.TempDirectory();

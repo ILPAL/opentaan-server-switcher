@@ -384,7 +384,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IEditorHost
     // ---- Saving / exporting --------------------------------------------------------------------
 
     [RelayCommand(CanExecute = nameof(CanSave))]
-    private Task Save() => SaveCoreAsync(null);
+    private Task Save() => SaveCoreAsync(copyPath: null);
 
     [RelayCommand]
     private async Task SaveAs()
@@ -397,11 +397,15 @@ public sealed partial class MainWindowViewModel : ObservableObject, IEditorHost
         var path = await _dialogs.PickFileToSaveAsync("Save a copy as .0m", _document.FileName, "0m", "TAAN config", CurrentFolder);
         if (path is not null)
         {
-            await SaveCoreAsync(path);
+            await SaveCoreAsync(copyPath: path);
         }
     }
 
-    private async Task<bool> SaveCoreAsync(string? path)
+    /// <summary>
+    /// Saves the open file, or writes a separate copy when <paramref name="copyPath"/> is given.
+    /// A copy never changes which file is open, so later saves still go to the original.
+    /// </summary>
+    private async Task<bool> SaveCoreAsync(string? copyPath)
     {
         if (_document is null)
         {
@@ -416,7 +420,17 @@ public sealed partial class MainWindowViewModel : ObservableObject, IEditorHost
 
         try
         {
-            var result = _document.Save(path);
+            // Picking the open file itself in "Save a copy as" is a normal save.
+            if (copyPath is not null && !string.Equals(Path.GetFullPath(copyPath), _document.FilePath, StringComparison.Ordinal))
+            {
+                var copy = _document.SaveCopy(copyPath);
+                _settings.AddRecent(copy.Path);
+                RefreshRecentFiles();
+                StatusMessage = $"Saved a copy as {Path.GetFileName(copy.Path)} · still editing {_document.FileName}";
+                return true;
+            }
+
+            var result = _document.Save();
             _settings.AddRecent(result.Path);
             RefreshRecentFiles();
             UpdateFileInfo();
