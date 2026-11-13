@@ -53,6 +53,15 @@ public sealed class AppSettings
         }
     }
 
+    public void ClearRecent()
+    {
+        if (RecentFiles.Count > 0)
+        {
+            RecentFiles.Clear();
+            Save();
+        }
+    }
+
     public void Save()
     {
         try

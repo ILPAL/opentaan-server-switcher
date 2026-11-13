@@ -167,7 +167,11 @@
             </ItemsControl>
 
             <StackPanel Spacing="6" IsVisible="{Binding HasNoDocument}" Margin="0,8,0,0">
-              <TextBlock Classes="section" Text="RECENT" Margin="6,0" IsVisible="{Binding HasRecentFiles}" />
+              <Grid ColumnDefinitions="*,Auto" Margin="6,0" IsVisible="{Binding HasRecentFiles}">
+                <TextBlock Classes="section" Text="RECENT" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Classes="link" Content="Clear" Command="{Binding ClearRecentCommand}"
+                        ToolTip.Tip="Remove all files from the recent list (the files themselves are not touched)" AutomationProperties.Name="Clear recent files" />
+              </Grid>
               <ItemsControl ItemsSource="{Binding RecentFiles}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:FileEntryViewModel">

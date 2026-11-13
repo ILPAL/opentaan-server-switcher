@@ -801,6 +801,13 @@ public sealed partial class MainWindowViewModel : ObservableObject, IEditorHost
         }
     }
 
+    [RelayCommand]
+    private void ClearRecent()
+    {
+        _settings.ClearRecent();
+        RefreshRecentFiles();
+    }
+
     private void RefreshRecentFiles()
     {
         RecentFiles.Clear();
