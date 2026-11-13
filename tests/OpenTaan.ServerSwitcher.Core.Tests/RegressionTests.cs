@@ -65,6 +65,29 @@ public class RegressionTests
         Assert.Empty(doc.GetChanges());
     }
 
+    [Fact]
+    public void SwitchServer_MatchesIpAndPortKeysIgnoringCase()
+    {
+        var root = new ConfigNode("content");
+        var server = root.AddChild(new ConfigNode("server"));
+        var upper = server.AddChild(new ConfigNode("Channel"));
+        upper.AddAttribute("IP", "1.1.1.1");
+        upper.AddAttribute("Port", "2180");
+        var mixed = server.AddChild(new ConfigNode("channel"));
+        mixed.AddAttribute("ip", "1.1.1.1");
+        mixed.AddAttribute("Port", "2180");
+
+        ServerEndpoints.CreateSwitchCommand(root, "10.0.0.9", "3000")!.Do();
+
+        Assert.Equal(2, ServerEndpoints.FindChannels(root).Count);
+        foreach (var channel in new[] { upper, mixed })
+        {
+            Assert.Equal(2, channel.Attributes.Count); // no second, lowercase port added
+            Assert.Equal("10.0.0.9", ServerEndpoints.GetIp(channel));
+            Assert.Equal("3000", ServerEndpoints.GetPort(channel));
+        }
+    }
+
     [Theory]
     [InlineData(0u)]
     [InlineData(5u)]

@@ -13,15 +13,16 @@ public static class ServerEndpoints
     public const string PortKey = "port";
 
     /// <summary>All <c>channel</c> elements that have an <c>ip</c> attribute, in document order.</summary>
+    /// <remarks>Element and attribute names are matched ignoring case, like the validator does.</remarks>
     public static IReadOnlyList<ConfigNode> FindChannels(ConfigNode root) =>
         root.DescendantsAndSelf()
-            .Where(n => string.Equals(n.Name, ChannelElement, StringComparison.OrdinalIgnoreCase) && n.FindAttribute(IpKey) is not null)
+            .Where(n => string.Equals(n.Name, ChannelElement, StringComparison.OrdinalIgnoreCase) && FindKey(n, IpKey) is not null)
             .ToList();
 
     /// <summary>Distinct "ip:port" endpoints currently configured, in first-seen order.</summary>
     public static IReadOnlyList<string> DistinctEndpoints(ConfigNode root) =>
         FindChannels(root)
-            .Select(n => n.GetValue(PortKey) is { } port ? $"{n.GetValue(IpKey)}:{port}" : n.GetValue(IpKey)!)
+            .Select(n => GetPort(n) is { } port ? $"{GetIp(n)}:{port}" : GetIp(n)!)
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
@@ -38,7 +39,7 @@ public static class ServerEndpoints
         var commands = new List<IEditCommand>();
         foreach (var channel in FindChannels(root))
         {
-            var ipAttribute = channel.FindAttribute(IpKey)!;
+            var ipAttribute = FindKey(channel, IpKey)!;
             if (!string.Equals(ipAttribute.Value, ip, StringComparison.Ordinal))
             {
                 commands.Add(new SetAttributeValueCommand(channel, ipAttribute, ip));
@@ -49,7 +50,7 @@ public static class ServerEndpoints
                 continue;
             }
 
-            var portAttribute = channel.FindAttribute(PortKey);
+            var portAttribute = FindKey(channel, PortKey);
             if (portAttribute is null)
             {
                 commands.Add(new InsertAttributeCommand(channel, new ConfigAttribute(PortKey, port), channel.IndexOfAttribute(ipAttribute) + 1));
@@ -68,4 +69,14 @@ public static class ServerEndpoints
         var label = port is null ? ip : $"{ip}:{port}";
         return new CompositeCommand($"Switch server to {label}", commands);
     }
+
+    /// <summary>The channel's <c>ip</c> value (key matched ignoring case), or null.</summary>
+    public static string? GetIp(ConfigNode channel) => FindKey(channel, IpKey)?.Value;
+
+    /// <summary>The channel's <c>port</c> value (key matched ignoring case), or null.</summary>
+    public static string? GetPort(ConfigNode channel) => FindKey(channel, PortKey)?.Value;
+
+    /// <summary>The first attribute whose key equals <paramref name="key"/>, ignoring case.</summary>
+    private static ConfigAttribute? FindKey(ConfigNode node, string key) =>
+        node.Attributes.FirstOrDefault(a => string.Equals(a.Key, key, StringComparison.OrdinalIgnoreCase));
 }

@@ -507,10 +507,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IEditorHost
 
         var channels = ServerEndpoints.FindChannels(_document.Root);
         CurrentEndpoints = channels
-            .Select(c => $"{c.GetValue("name") ?? c.Segment}  →  {c.GetValue(ServerEndpoints.IpKey)}:{c.GetValue(ServerEndpoints.PortKey)}")
+            .Select(c => $"{c.GetValue("name") ?? c.Segment}  →  {ServerEndpoints.GetIp(c)}:{ServerEndpoints.GetPort(c)}")
             .ToList();
-        var ips = channels.Select(c => c.GetValue(ServerEndpoints.IpKey)).Distinct().ToList();
-        var ports = channels.Select(c => c.GetValue(ServerEndpoints.PortKey)).Distinct().ToList();
+        var ips = channels.Select(ServerEndpoints.GetIp).Distinct().ToList();
+        var ports = channels.Select(ServerEndpoints.GetPort).Distinct().ToList();
         SwitchIp = ips.Count == 1 ? ips[0] ?? string.Empty : string.Empty;
         SwitchPort = ports.Count == 1 ? ports[0] ?? string.Empty : string.Empty;
         SwitchError = null;
