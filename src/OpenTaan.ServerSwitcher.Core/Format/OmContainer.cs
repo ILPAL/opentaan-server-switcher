@@ -82,6 +82,11 @@ public static class OmContainer
             inner = inner[..(int)declaredInnerSize];
         }
 
+        if (inner.Length < 6)
+        {
+            throw new OmFormatException($"Header declares only {inner.Length} bytes of data; at least 6 are needed for the inner header.");
+        }
+
         if (inner[0] != Signature)
         {
             throw new OmFormatException($"Unsupported .0m variant: signature is 0x{inner[0]:X2}, expected 'S' (0x53).");
