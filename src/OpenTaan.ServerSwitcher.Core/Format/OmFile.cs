@@ -69,7 +69,45 @@ public static class OmFile
     {
         var bytes = Encode(container, treeHeader, root, trailer);
         var written = Verify(bytes, container, root);
+        var (fullPath, backupPath) = WriteSafely(path, bytes, createBackup);
+        return new OmSaveResult(fullPath, backupPath, bytes.Length, written);
+    }
 
+    /// <summary>
+    /// Safely writes a .0m file from raw plaintext, with the same guarantees as
+    /// <see cref="Save(string, OmContainerInfo, byte[], ConfigNode, byte[], bool)"/>: original seed reused,
+    /// self-check by decoding again, <c>.bak</c> of the first version, and a temporary file replacing the target.
+    /// </summary>
+    public static OmSaveResult SavePlaintext(string path, OmContainerInfo container, byte[] plaintext, bool createBackup = true)
+    {
+        var bytes = OmContainer.Encode(plaintext, container);
+        OmContainer.DecodeResult check;
+        try
+        {
+            check = OmContainer.Decode(bytes);
+        }
+        catch (OmFormatException ex)
+        {
+            throw new InvalidOperationException("Self-check failed: the encoded file could not be decoded again. Nothing was written.", ex);
+        }
+
+        if (check.Info.Seed != container.Seed || check.Info.InnerFlags != container.InnerFlags || check.Info.OuterFlags != container.OuterFlags)
+        {
+            throw new InvalidOperationException("Self-check failed: container settings changed while encoding. Nothing was written.");
+        }
+
+        if (!check.Plaintext.AsSpan().SequenceEqual(plaintext))
+        {
+            throw new InvalidOperationException("Self-check failed: the encoded file does not decode to the same bytes. Nothing was written.");
+        }
+
+        var (fullPath, backupPath) = WriteSafely(path, bytes, createBackup);
+        return new OmSaveResult(fullPath, backupPath, bytes.Length, check.Info);
+    }
+
+    /// <summary>Keeps the first version as <c>.bak</c> (when asked), then writes through a temporary file.</summary>
+    private static (string FullPath, string? BackupPath) WriteSafely(string path, byte[] bytes, bool createBackup)
+    {
         var fullPath = System.IO.Path.GetFullPath(path);
         var directory = System.IO.Path.GetDirectoryName(fullPath) ?? ".";
         Directory.CreateDirectory(directory);
@@ -99,7 +137,7 @@ public static class OmFile
             }
         }
 
-        return new OmSaveResult(fullPath, backupPath, bytes.Length, written);
+        return (fullPath, backupPath);
     }
 
     private static OmContainerInfo Verify(byte[] bytes, OmContainerInfo expected, ConfigNode root)

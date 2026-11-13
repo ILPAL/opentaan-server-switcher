@@ -135,4 +135,25 @@ public class RegressionTests
 
         Assert.Throws<OmFormatException>(() => OmContainer.Decode(bytes));
     }
+
+    [Fact]
+    public void SavePlaintext_ReusesSeed_KeepsBackup_AndWritesExactPlaintext()
+    {
+        using var temp = new Fixtures.TempDirectory();
+        var path = temp.File("taan_server.0m");
+        var originalBytes = SampleBytes(seed: 0x12345678);
+        File.WriteAllBytes(path, originalBytes);
+
+        var tree = Fixtures.SampleTree();
+        tree.Children[0].Children[0].FindAttribute("ip")!.Value = "10.7.7.7";
+        var plaintext = OmTree.Write(OmTree.DefaultHeader, tree);
+
+        var result = OmFile.SavePlaintext(path, OmFile.Load(path).Container, plaintext);
+
+        Assert.Equal(originalBytes, File.ReadAllBytes(result.BackupPath!));
+        var saved = OmFile.Load(path);
+        Assert.Equal(0x12345678u, saved.Container.Seed);
+        Assert.Equal(plaintext, saved.Plaintext);
+        Assert.Empty(Directory.GetFiles(temp.Path, "*.tmp", SearchOption.AllDirectories));
+    }
 }

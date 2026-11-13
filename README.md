@@ -64,7 +64,8 @@ opentaan-switcher validate taan_server.0m
 ## Safety
 
 - **The original seed is always reused** when re-encrypting (stock files use `0x83EF8226`). A different seed
-  can crash the client, so neither the editor nor the CLI offers one.
+  can crash the client, so neither the editor nor the CLI offers one. Without `--template`, the CLI's `import`
+  and `encrypt` reuse the seed of the file they overwrite; only a brand-new file gets the stock seed.
 - Saving checks the result by decrypting it again before anything is written, writes through a temporary
   file, and keeps the first version of an overwritten file as `<file>.bak`.
 - IP addresses and ports are validated; errors block saving.

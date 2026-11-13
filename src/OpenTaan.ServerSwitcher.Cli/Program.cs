@@ -22,15 +22,15 @@ public static class Program
                                                                    Point every channel at <ip>[:port]
           opentaan-switcher validate <file.0m>                     Check ip/port values
           opentaan-switcher export   <file.0m> <out.xml|out.json>  Export the tree as XML or JSON
-          opentaan-switcher import   <in.xml|in.json> <out.0m> [--template original.0m]
+          opentaan-switcher import   <in.xml|in.json> <out.0m> [--template original.0m] [--no-backup]
                                                                    Build a .0m from XML/JSON
           opentaan-switcher decrypt  <file.0m> [out.bin]           Write the decrypted plaintext
-          opentaan-switcher encrypt  <in.bin> <out.0m> [--template original.0m]
+          opentaan-switcher encrypt  <in.bin> <out.0m> [--template original.0m] [--no-backup]
                                                                    Encrypt plaintext into a .0m
 
-        Re-encryption always reuses the seed of --template (or of the file being edited).
-        Without --template the stock TAAN seed 0x83EF8226 and the stock tree header are used.
-        Overwriting a file keeps the first version as <file>.bak.
+        Re-encryption always reuses an existing seed: the one of --template, otherwise the one of the
+        file being overwritten. Only a brand-new file gets the stock TAAN seed 0x83EF8226 and tree header.
+        Overwriting a file keeps the first version as <file>.bak (unless --no-backup).
         """;
 
     public static int Main(string[] args)
@@ -201,7 +201,7 @@ public static class Program
             return 1;
         }
 
-        var (container, header) = Template(o);
+        var (container, header) = Template(o, output);
         var result = OmFile.Save(output, container, header, root, createBackup: !o.Flag("--no-backup"));
         Report(result);
         return 0;
@@ -224,14 +224,18 @@ public static class Program
         var output = o.Positional(1, "out.0m");
         var plaintext = File.ReadAllBytes(input);
         _ = OmTree.Read(plaintext); // refuse to encrypt something that is not a valid config tree
-        var (container, _) = Template(o);
-        var bytes = OmContainer.Encode(plaintext, container);
-        File.WriteAllBytes(output, bytes);
-        Console.WriteLine($"Encrypted {plaintext.Length} bytes → {output} ({bytes.Length} bytes, seed 0x{container.Seed:X8})");
+        var (container, _) = Template(o, output);
+        var result = OmFile.SavePlaintext(output, container, plaintext, createBackup: !o.Flag("--no-backup"));
+        Console.WriteLine($"Encrypted {plaintext.Length} bytes");
+        Report(result);
         return 0;
     }
 
-    private static (OmContainerInfo Container, byte[] Header) Template(Options o)
+    /// <summary>
+    /// Container settings (seed, flags) and tree header to encode with: from <c>--template</c>, otherwise from the
+    /// existing <paramref name="output"/> file so overwriting never changes its seed; stock values only for a new file.
+    /// </summary>
+    private static (OmContainerInfo Container, byte[] Header) Template(Options o, string output)
     {
         if (o.Value("--template") is { } template)
         {
@@ -244,6 +248,23 @@ public static class Program
 
     private static void Save(ConfigDocument document, string output, bool noBackup)
     {
+        if (File.Exists(output))
+        {
+            OmFileContent existing;
+            try
+            {
+                existing = OmFile.Load(output);
+            }
+            catch (OmFormatException ex)
+            {
+                throw new UsageException(
+                    $"{output} already exists but is not a readable .0m file ({ex.Message}), so its seed cannot be reused. Pass --template original.0m or choose a new output path.");
+            }
+
+            Console.WriteLine($"Reusing seed 0x{existing.Container.Seed:X8} and tree header of the existing {output}");
+            return (existing.Container, existing.Tree.Header);
+        }
+
         var result = document.Save(output, createBackup: !noBackup);
         Report(result);
     }
