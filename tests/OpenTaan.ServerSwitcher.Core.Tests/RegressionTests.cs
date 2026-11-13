@@ -24,6 +24,23 @@ public class RegressionTests
     private static string? FirstIp(string path) =>
         ServerEndpoints.FindChannels(OmFile.Load(path).Tree.Root)[0].GetValue("ip");
 
+    [Fact]
+    public void Save_EndsUndoMerge_SoUndoStopsAtTheSavedValue()
+    {
+        using var temp = new Fixtures.TempDirectory();
+        var doc = OpenSample(temp);
+        var channel = ServerEndpoints.FindChannels(doc.Root)[0];
+        var ip = channel.FindAttribute("ip")!;
+
+        doc.Execute(new SetAttributeValueCommand(channel, ip, "1.2.3.4"));
+        doc.Save();
+        doc.Execute(new SetAttributeValueCommand(channel, ip, "1.2.3.45"));
+        doc.History.Undo();
+
+        Assert.Equal("1.2.3.4", ip.Value);
+        Assert.False(doc.IsModified);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

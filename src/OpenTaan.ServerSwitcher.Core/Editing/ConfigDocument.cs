@@ -93,6 +93,9 @@ public sealed class ConfigDocument
         FilePath = result.Path;
         Container = result.Container;
         Baseline = TreeSnapshot.Capture(Root);
+
+        // Edits after a save start a new undo step, so a single Undo never jumps past the saved state.
+        History.BreakMerge();
         Changed?.Invoke(this, EventArgs.Empty);
         return result;
     }
