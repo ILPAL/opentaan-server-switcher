@@ -250,7 +250,7 @@
           </StackPanel>
 
           <!-- Tree -->
-          <TreeView x:Name="Tree" IsVisible="{Binding IsTreeView}" ItemsSource="{Binding RootNodes}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+          <TreeView x:Name="Tree" IsVisible="{Binding ShowTreeView}" ItemsSource="{Binding RootNodes}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
                     Padding="8" Background="Transparent">
             <TreeView.Styles>
               <Style Selector="TreeViewItem" x:DataType="vm:NodeViewModel">
@@ -296,11 +296,11 @@
             </TreeView.ItemTemplate>
           </TreeView>
 
-          <Panel IsVisible="{Binding IsTableView}">
+          <Panel IsVisible="{Binding ShowTableView}">
             <views:TablePane DataContext="{Binding Table}" />
           </Panel>
-          <views:XmlPane IsVisible="{Binding IsXmlView}" />
-          <views:ChangesPane IsVisible="{Binding IsChangesView}" />
+          <views:XmlPane IsVisible="{Binding ShowXmlView}" />
+          <views:ChangesPane IsVisible="{Binding ShowChangesView}" />
         </Panel>
 
         <!-- Problems -->

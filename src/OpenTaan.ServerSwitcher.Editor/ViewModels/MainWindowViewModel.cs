@@ -196,6 +196,18 @@ public sealed partial class MainWindowViewModel : ObservableObject, IEditorHost
 
     public bool IsChangesView => ActiveView == EditorView.Changes;
 
+    // Pane visibility: like Is*View, but hidden while no document is loaded. The panes share a
+    // Panel with the welcome screen and are hit-testable, so a visible empty pane would sit on
+    // top of the "Open .0m file…" button and swallow its clicks.
+
+    public bool ShowTreeView => HasDocument && IsTreeView;
+
+    public bool ShowTableView => HasDocument && IsTableView;
+
+    public bool ShowXmlView => HasDocument && IsXmlView;
+
+    public bool ShowChangesView => HasDocument && IsChangesView;
+
     public bool HasChanges => ChangeCount > 0;
 
     public bool HasNoChanges => ChangeCount == 0;
@@ -218,7 +230,16 @@ public sealed partial class MainWindowViewModel : ObservableObject, IEditorHost
         OnPropertyChanged(nameof(IsTableView));
         OnPropertyChanged(nameof(IsXmlView));
         OnPropertyChanged(nameof(IsChangesView));
+        RaisePaneVisibilityChanged();
         UpdateXmlIfVisible();
+    }
+
+    private void RaisePaneVisibilityChanged()
+    {
+        OnPropertyChanged(nameof(ShowTreeView));
+        OnPropertyChanged(nameof(ShowTableView));
+        OnPropertyChanged(nameof(ShowXmlView));
+        OnPropertyChanged(nameof(ShowChangesView));
     }
 
     partial void OnSelectedNodeChanged(NodeViewModel? value)
@@ -343,6 +364,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IEditorHost
 
         OnPropertyChanged(nameof(HasDocument));
         OnPropertyChanged(nameof(HasNoDocument));
+        RaisePaneVisibilityChanged();
         OnPropertyChanged(nameof(CanSave));
         OnPropertyChanged(nameof(IsSaveBlocked));
         SaveCommand.NotifyCanExecuteChanged();
