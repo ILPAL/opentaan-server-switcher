@@ -55,7 +55,7 @@
               <Flyout Placement="BottomEdgeAlignedRight">
                 <StackPanel Width="340" Spacing="12" Margin="4">
                   <StackPanel Spacing="2">
-                    <TextBlock Text="Switch server" FontWeight="SemiBold" FontSize="14" />
+                    <TextBlock Text="Switch all channels to one server" FontWeight="SemiBold" FontSize="14" />
                     <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Sets ip (and port) on every channel in one undoable step." />
                   </StackPanel>
                   <Border Classes="well" Padding="10,8">
