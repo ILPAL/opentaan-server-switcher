@@ -1,0 +1,146 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OpenTaan.ServerSwitcher.Editor.ViewModels"
+        x:Class="OpenTaan.ServerSwitcher.Editor.Views.OpenFileWindow"
+        x:DataType="vm:OpenFileViewModel"
+        Title="Open encrypted file"
+        Width="820" Height="640" MinWidth="700" MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+    <!-- Title -->
+    <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,20,24,16">
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+        <Border Width="36" Height="36" CornerRadius="8" Background="{StaticResource AmberBgBrush}" VerticalAlignment="Top">
+          <Path Classes="icon" Data="{StaticResource IconKey}" Stroke="{StaticResource AttrBrush}" HorizontalAlignment="Center" />
+        </Border>
+        <StackPanel Grid.Column="1" Spacing="3">
+          <TextBlock Text="Open encrypted file" FontSize="16" FontWeight="SemiBold" />
+          <TextBlock Classes="muted" TextWrapping="Wrap"
+                     Text="The decrypted tree is held in memory only. The file on disk stays encrypted until you save, and saving reuses this file's seed." />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Body -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="24" Margin="24,20">
+      <!-- Left: file + header -->
+      <StackPanel Spacing="14">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="subhead" Text="File" />
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Border Classes="well" Padding="10,0" Height="34">
+              <TextBlock Classes="mono small" Text="{Binding FilePath}" TextTrimming="PathSegmentEllipsis" VerticalAlignment="Center" ToolTip.Tip="{Binding FilePath}" />
+            </Border>
+            <Button Grid.Column="1" Content="Browse…" Height="34" Command="{Binding BrowseCommand}" />
+          </Grid>
+          <TextBlock Classes="faint small" Text="{Binding FileInfoText}" />
+        </StackPanel>
+
+        <StackPanel Spacing="6">
+          <TextBlock Classes="subhead" Text="Format" />
+          <Border Classes="well" Padding="10,8">
+            <StackPanel Spacing="2">
+              <TextBlock Text="TAAN .0m container" FontWeight="Medium" />
+              <TextBlock Classes="muted small" TextWrapping="Wrap" Text="zlib-compressed, XOR keystream derived from the seed stored in the header. No key needed. Strings are UTF-16LE." />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <StackPanel Spacing="6">
+          <TextBlock Classes="subhead" Text="File header" />
+          <Border Classes="well" Padding="12,8">
+            <StackPanel>
+              <TextBlock Classes="error" Text="{Binding HeaderError}" IsVisible="{Binding HasHeaderError}" TextWrapping="Wrap" />
+              <ItemsControl ItemsSource="{Binding HeaderFields}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:HeaderField">
+                    <Grid ColumnDefinitions="42,92,108,*" Height="22">
+                      <TextBlock Classes="mono faint" FontSize="12" Text="{Binding Offset}" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Classes="muted" FontSize="12" Text="{Binding Name}" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="2" Classes="mono" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Text="{Binding Hex}" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="3" FontSize="12" Text="{Binding Meaning}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- Right: test decrypt + preview -->
+      <DockPanel Grid.Column="1">
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+          <TextBlock Classes="subhead" Text="Decrypted preview" VerticalAlignment="Center" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5" IsVisible="{Binding TestSucceeded}">
+            <Path Classes="icon" Data="{StaticResource IconCheck}" Stroke="{StaticResource StringBrush}" StrokeThickness="1.8" />
+            <TextBlock Text="Checksum valid" FontSize="12" Foreground="{StaticResource StringBrush}" VerticalAlignment="Center" />
+          </StackPanel>
+        </Grid>
+
+        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="6" Background="{StaticResource InputBgBrush}" ClipToBounds="True">
+          <Panel>
+            <!-- Not tested yet -->
+            <StackPanel IsVisible="{Binding IsUntested}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12" Margin="20">
+              <TextBlock Classes="muted" TextAlignment="Center" TextWrapping="Wrap" Text="Run a test decrypt to check the file before opening." />
+              <Button HorizontalAlignment="Center" Content="Test decrypt" Command="{Binding TestCommand}" />
+            </StackPanel>
+
+            <!-- Failed -->
+            <StackPanel IsVisible="{Binding HasTestError}" Spacing="10" Margin="16" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Path Classes="icon" Data="{StaticResource IconAlert}" Stroke="{StaticResource ErrorBrush}" />
+                <TextBlock Text="Cannot decrypt this file" FontWeight="SemiBold" Foreground="{StaticResource ErrorSoftBrush}" VerticalAlignment="Center" />
+              </StackPanel>
+              <SelectableTextBlock Classes="muted" Text="{Binding TestError}" TextWrapping="Wrap" />
+              <Button Classes="link" Content="Test again" Command="{Binding TestCommand}" />
+            </StackPanel>
+
+            <!-- Succeeded -->
+            <DockPanel IsVisible="{Binding TestSucceeded}">
+              <Border DockPanel.Dock="Bottom" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                <StackPanel Spacing="4">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="muted small" Text="{Binding RootSummary}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <Button Grid.Column="1" Classes="link" FontSize="12" Content="Test again" Command="{Binding TestCommand}" />
+                  </Grid>
+                  <ItemsControl ItemsSource="{Binding Warnings}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="x:String">
+                        <TextBlock Classes="warning" Text="{Binding}" TextWrapping="Wrap" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+              <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                <SelectableTextBlock Classes="mono" FontSize="12" LineHeight="20" Margin="12,10" Text="{Binding PreviewXml}" Foreground="{StaticResource TextSecondaryBrush}" />
+              </ScrollViewer>
+            </DockPanel>
+          </Panel>
+        </Border>
+      </DockPanel>
+    </Grid>
+
+    <!-- Footer -->
+    <Border Grid.Row="2" Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="24,14">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Path Classes="icon" Data="{StaticResource IconLock}" Stroke="{StaticResource AttrBrush}" />
+          <TextBlock Classes="muted small" Text="Saving re-encrypts with the original seed and keeps a .bak of the first version." VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+          <Button Content="Cancel" Command="{Binding CancelCommand}" IsCancel="True" />
+          <Button Classes="primary" Command="{Binding OpenCommand}" IsDefault="True">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Path Classes="icon" Data="{StaticResource IconLock}" />
+              <TextBlock Text="Decrypt &amp; open" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

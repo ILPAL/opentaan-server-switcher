@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OpenTaan.ServerSwitcher.Editor.ViewModels"
+             x:Class="OpenTaan.ServerSwitcher.Editor.Views.TablePane"
+             x:DataType="vm:TableViewModel">
+
+  <DockPanel Margin="12">
+    <TextBlock DockPanel.Dock="Top" Classes="muted small" Margin="2,0,0,10" Text="{Binding Title}" />
+
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" IsVisible="{Binding HasRows}">
+      <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <StackPanel>
+          <!-- Header row -->
+          <Border Background="#171A1F" Height="34" Padding="14,0">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <TextBlock Classes="section" Text="ELEMENT" Width="{Binding LabelColumnWidth}" VerticalAlignment="Center" />
+              <ItemsControl ItemsSource="{Binding Columns}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="12" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:TableColumn">
+                    <TextBlock Classes="section" Text="{Binding Key}" Width="{Binding Width}" VerticalAlignment="Center" Margin="9,0,0,0" />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+
+          <!-- Rows -->
+          <ItemsControl ItemsSource="{Binding Rows}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:TableRowViewModel">
+                <Border BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,1,0,0" Padding="14,3" Classes.selected="{Binding IsSelected}">
+                  <Border.Styles>
+                    <Style Selector="Border.selected">
+                      <Setter Property="Background" Value="{StaticResource SelectionBrush}" />
+                    </Style>
+                  </Border.Styles>
+                  <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button Classes="link" Width="{Binding $parent[ItemsControl].((vm:TableViewModel)DataContext).LabelColumnWidth}" HorizontalContentAlignment="Left"
+                            Command="{Binding SelectCommand}" ToolTip.Tip="Select in tree and inspector">
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="mono" Text="{Binding Label}" />
+                        <Ellipse Classes="dot" IsVisible="{Binding IsChanged}" />
+                      </StackPanel>
+                    </Button>
+                    <ItemsControl ItemsSource="{Binding Cells}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Orientation="Horizontal" Spacing="12" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TableCellViewModel">
+                          <TextBox Classes="mono cell" Classes.changed="{Binding IsChanged}" Classes.error="{Binding HasError}"
+                                   Width="{Binding Column.Width}" Text="{Binding Value}" PlaceholderText="—"
+                                   ToolTip.Tip="{Binding ToolTip}" AutomationProperties.Name="{Binding Column.Key}" />
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

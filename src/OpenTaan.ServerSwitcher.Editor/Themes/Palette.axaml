@@ -1,0 +1,107 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Palette from the Claude Design mockup ("Config Editor workbench"). Dark only for now. -->
+  <Color x:Key="BgColor">#111317</Color>
+  <Color x:Key="SurfaceColor">#15181C</Color>
+  <Color x:Key="SurfaceAltColor">#131619</Color>
+  <Color x:Key="InputBgColor">#0F1114</Color>
+  <Color x:Key="ControlBgColor">#1B1F24</Color>
+  <Color x:Key="BorderColor">#262A31</Color>
+  <Color x:Key="BorderSubtleColor">#22262C</Color>
+  <Color x:Key="BorderStrongColor">#343A43</Color>
+  <Color x:Key="InputBorderColor">#2F353E</Color>
+  <Color x:Key="TextColor">#E4E7EB</Color>
+  <Color x:Key="TextSecondaryColor">#C3C9D1</Color>
+  <Color x:Key="TextMutedColor">#9BA3AE</Color>
+  <Color x:Key="TextFaintColor">#7D8590</Color>
+  <Color x:Key="PunctuationColor">#8A929D</Color>
+  <Color x:Key="AccentColor">#6CB0F5</Color>
+  <Color x:Key="AccentHoverColor">#8CC2F7</Color>
+  <Color x:Key="OnAccentColor">#0B1220</Color>
+  <Color x:Key="TagColor">#7AB7F2</Color>
+  <Color x:Key="AttrColor">#E9B25C</Color>
+  <Color x:Key="StringColor">#9FD38A</Color>
+  <Color x:Key="ErrorColor">#F28B82</Color>
+  <Color x:Key="ErrorSoftColor">#F2A8A1</Color>
+  <Color x:Key="AmberBgColor">#211B11</Color>
+  <Color x:Key="AmberBorderColor">#4A3C22</Color>
+  <Color x:Key="AmberBadgeBgColor">#3A2F1B</Color>
+  <Color x:Key="ChangedBorderColor">#8A6A35</Color>
+  <Color x:Key="DiffRemovedBgColor">#2A1A1B</Color>
+  <Color x:Key="DiffAddedBgColor">#15281B</Color>
+  <Color x:Key="DiffAddedTextColor">#A9DC94</Color>
+  <Color x:Key="DangerBorderColor">#4A2C2C</Color>
+  <Color x:Key="SelectionColor">#2D6CB0F5</Color>
+  <Color x:Key="HoverColor">#14FFFFFF</Color>
+  <Color x:Key="MatchColor">#38E9B25C</Color>
+
+  <SolidColorBrush x:Key="BgBrush" Color="{StaticResource BgColor}" />
+  <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+  <SolidColorBrush x:Key="SurfaceAltBrush" Color="{StaticResource SurfaceAltColor}" />
+  <SolidColorBrush x:Key="InputBgBrush" Color="{StaticResource InputBgColor}" />
+  <SolidColorBrush x:Key="ControlBgBrush" Color="{StaticResource ControlBgColor}" />
+  <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+  <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtleColor}" />
+  <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrongColor}" />
+  <SolidColorBrush x:Key="InputBorderBrush" Color="{StaticResource InputBorderColor}" />
+  <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}" />
+  <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
+  <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}" />
+  <SolidColorBrush x:Key="TextFaintBrush" Color="{StaticResource TextFaintColor}" />
+  <SolidColorBrush x:Key="PunctuationBrush" Color="{StaticResource PunctuationColor}" />
+  <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+  <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" />
+  <SolidColorBrush x:Key="OnAccentBrush" Color="{StaticResource OnAccentColor}" />
+  <SolidColorBrush x:Key="TagBrush" Color="{StaticResource TagColor}" />
+  <SolidColorBrush x:Key="AttrBrush" Color="{StaticResource AttrColor}" />
+  <SolidColorBrush x:Key="StringBrush" Color="{StaticResource StringColor}" />
+  <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+  <SolidColorBrush x:Key="ErrorSoftBrush" Color="{StaticResource ErrorSoftColor}" />
+  <SolidColorBrush x:Key="AmberBgBrush" Color="{StaticResource AmberBgColor}" />
+  <SolidColorBrush x:Key="AmberBorderBrush" Color="{StaticResource AmberBorderColor}" />
+  <SolidColorBrush x:Key="AmberBadgeBgBrush" Color="{StaticResource AmberBadgeBgColor}" />
+  <SolidColorBrush x:Key="ChangedBorderBrush" Color="{StaticResource ChangedBorderColor}" />
+  <SolidColorBrush x:Key="DiffRemovedBgBrush" Color="{StaticResource DiffRemovedBgColor}" />
+  <SolidColorBrush x:Key="DiffAddedBgBrush" Color="{StaticResource DiffAddedBgColor}" />
+  <SolidColorBrush x:Key="DiffAddedTextBrush" Color="{StaticResource DiffAddedTextColor}" />
+  <SolidColorBrush x:Key="DangerBorderBrush" Color="{StaticResource DangerBorderColor}" />
+  <SolidColorBrush x:Key="SelectionBrush" Color="{StaticResource SelectionColor}" />
+  <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
+  <SolidColorBrush x:Key="MatchBrush" Color="{StaticResource MatchColor}" />
+
+  <FontFamily x:Key="MonoFont">JetBrains Mono, Cascadia Mono, SF Mono, Menlo, Consolas, DejaVu Sans Mono, monospace</FontFamily>
+
+  <!-- Fluent theme overrides so built-in controls match the palette. -->
+  <SolidColorBrush x:Key="SystemControlBackgroundAltHighBrush" Color="{StaticResource BgColor}" />
+  <SolidColorBrush x:Key="TextControlBackground" Color="{StaticResource InputBgColor}" />
+  <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="{StaticResource InputBgColor}" />
+  <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="{StaticResource InputBgColor}" />
+  <SolidColorBrush x:Key="TextControlBorderBrush" Color="{StaticResource InputBorderColor}" />
+  <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="{StaticResource BorderStrongColor}" />
+  <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="{StaticResource AccentColor}" />
+  <SolidColorBrush x:Key="TextControlForeground" Color="{StaticResource TextColor}" />
+  <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="{StaticResource TextColor}" />
+  <SolidColorBrush x:Key="TextControlForegroundFocused" Color="{StaticResource TextColor}" />
+  <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="{StaticResource TextFaintColor}" />
+  <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="{StaticResource TextFaintColor}" />
+  <SolidColorBrush x:Key="TextControlSelectionHighlightColor" Color="#3D6CB0F5" />
+  <Thickness x:Key="TextControlBorderThemeThickness">1</Thickness>
+  <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
+  <SolidColorBrush x:Key="FlyoutPresenterBackground" Color="{StaticResource SurfaceColor}" />
+  <SolidColorBrush x:Key="FlyoutBorderThemeBrush" Color="{StaticResource BorderStrongColor}" />
+  <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="{StaticResource SurfaceColor}" />
+  <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="{StaticResource BorderStrongColor}" />
+  <SolidColorBrush x:Key="TreeViewItemBackgroundSelected" Color="{StaticResource SelectionColor}" />
+  <SolidColorBrush x:Key="TreeViewItemBackgroundSelectedPointerOver" Color="{StaticResource SelectionColor}" />
+  <SolidColorBrush x:Key="TreeViewItemBackgroundPointerOver" Color="{StaticResource HoverColor}" />
+  <SolidColorBrush x:Key="TreeViewItemBackgroundSelectedPressed" Color="{StaticResource SelectionColor}" />
+  <SolidColorBrush x:Key="TreeViewItemBackgroundPressed" Color="{StaticResource HoverColor}" />
+  <SolidColorBrush x:Key="ListBoxItemBackgroundSelected" Color="{StaticResource SelectionColor}" />
+  <SolidColorBrush x:Key="ListBoxItemBackgroundSelectedPointerOver" Color="{StaticResource SelectionColor}" />
+  <SolidColorBrush x:Key="ListBoxItemBackgroundPointerOver" Color="{StaticResource HoverColor}" />
+  <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="{StaticResource AccentColor}" />
+  <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" Color="{StaticResource AccentHoverColor}" />
+  <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked" Color="{StaticResource AccentColor}" />
+  <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundChecked" Color="{StaticResource OnAccentColor}" />
+</ResourceDictionary>

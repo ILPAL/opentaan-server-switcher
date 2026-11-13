@@ -1,0 +1,366 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OpenTaan.ServerSwitcher.Editor.ViewModels"
+        xmlns:views="using:OpenTaan.ServerSwitcher.Editor.Views"
+        x:Class="OpenTaan.ServerSwitcher.Editor.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="{Binding WindowTitle, Mode=OneWay}"
+        Width="1440" Height="900" MinWidth="980" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- ================= Header ================= -->
+    <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <Viewbox Width="22" Height="22">
+            <Path Data="{StaticResource IconLogo}" Width="24" Height="24" Stroke="{StaticResource AttrBrush}" StrokeThickness="1.8" StrokeLineCap="Round" StrokeJoin="Round" />
+          </Viewbox>
+          <TextBlock Text="OpenTaan Server Switcher" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" IsVisible="{Binding HasDocument}"
+                    ToolTip.Tip="{Binding FullPath}">
+          <TextBlock Classes="mono small muted" Text="{Binding FolderName}" />
+          <TextBlock Classes="mono small faint" Text="/" />
+          <TextBlock Classes="mono small" Text="{Binding FileName}" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Border IsVisible="{Binding HasDocument}" CornerRadius="999" Height="26" Padding="10,0" Background="{StaticResource AmberBgBrush}"
+                  BorderBrush="{StaticResource AmberBorderBrush}" BorderThickness="1"
+                  ToolTip.Tip="The file on disk stays encrypted. Changes are re-encrypted with the original seed when you save.">
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+              <Path Classes="icon" Data="{StaticResource IconLock}" Stroke="{StaticResource AttrBrush}" />
+              <TextBlock Text="Decrypted in memory" FontSize="12" FontWeight="Medium" Foreground="{StaticResource AttrBrush}" VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+
+          <StackPanel Orientation="Horizontal" Spacing="2" IsVisible="{Binding HasDocument}">
+            <Button Classes="icon" Command="{Binding UndoCommand}" ToolTip.Tip="{Binding UndoToolTip}" AutomationProperties.Name="Undo">
+              <Path Classes="icon" Data="{StaticResource IconUndo}" />
+            </Button>
+            <Button Classes="icon" Command="{Binding RedoCommand}" ToolTip.Tip="{Binding RedoToolTip}" AutomationProperties.Name="Redo">
+              <Path Classes="icon" Data="{StaticResource IconRedo}" />
+            </Button>
+          </StackPanel>
+
+          <Button x:Name="SwitchButton" IsVisible="{Binding HasDocument}" ToolTip.Tip="Point every channel at one server">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Path Classes="icon" Data="{StaticResource IconSwitch}" />
+              <TextBlock Text="Switch server" VerticalAlignment="Center" />
+            </StackPanel>
+            <Button.Flyout>
+              <Flyout Placement="BottomEdgeAlignedRight">
+                <StackPanel Width="340" Spacing="12" Margin="4">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="Switch server" FontWeight="SemiBold" FontSize="14" />
+                    <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Sets ip (and port) on every channel in one undoable step." />
+                  </StackPanel>
+                  <Border Classes="well" Padding="10,8">
+                    <ItemsControl ItemsSource="{Binding CurrentEndpoints}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                          <TextBlock Classes="mono small muted" Text="{Binding}" />
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </Border>
+                  <Grid ColumnDefinitions="*,96" ColumnSpacing="10">
+                    <StackPanel Spacing="6">
+                      <TextBlock Classes="subhead" Text="IP address" />
+                      <TextBox x:Name="SwitchIpBox" Classes="mono" Text="{Binding SwitchIp}" PlaceholderText="203.0.113.10" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="6">
+                      <TextBlock Classes="subhead" Text="Port" />
+                      <TextBox Classes="mono" Text="{Binding SwitchPort}" PlaceholderText="keep" />
+                    </StackPanel>
+                  </Grid>
+                  <TextBlock Classes="error" Text="{Binding SwitchError}" IsVisible="{Binding HasSwitchError}" TextWrapping="Wrap" />
+                  <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                    <TextBlock Classes="faint small" VerticalAlignment="Center" Text="Port empty = keep current ports" />
+                    <Button Classes="primary" Content="Apply to all channels" Command="{Binding ApplySwitchCommand}" IsDefault="True" />
+                  </StackPanel>
+                </StackPanel>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+
+          <Button IsVisible="{Binding HasDocument}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Path Classes="icon" Data="{StaticResource IconDownload}" />
+              <TextBlock Text="Export" VerticalAlignment="Center" />
+            </StackPanel>
+            <Button.Flyout>
+              <MenuFlyout Placement="BottomEdgeAlignedRight">
+                <MenuItem Header="Export plain XML…" Command="{Binding ExportXmlCommand}" />
+                <MenuItem Header="Export JSON…" Command="{Binding ExportJsonCommand}" />
+                <Separator />
+                <MenuItem Header="Save a copy as .0m…" Command="{Binding SaveAsCommand}" InputGesture="Ctrl+Shift+S" />
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+
+          <Button Classes="primary" IsVisible="{Binding CanSave}" Command="{Binding SaveCommand}" ToolTip.Tip="Save and re-encrypt with the original seed (Ctrl/Cmd+S)">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Path Classes="icon" Data="{StaticResource IconLock}" />
+              <TextBlock Text="Save &amp; re-encrypt" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <Border IsVisible="{Binding IsSaveBlocked}" Height="32" Padding="14,0" CornerRadius="6" Background="#1D1516"
+                  BorderBrush="#5A3A38" BorderThickness="1" ToolTip.Tip="Errors in the Problems panel must be fixed before saving">
+            <TextBlock Text="{Binding SaveBlockedLabel}" Foreground="{StaticResource ErrorSoftBrush}" FontWeight="Medium" VerticalAlignment="Center" />
+          </Border>
+
+          <Button Classes="icon" Command="{Binding OpenCommand}" ToolTip.Tip="Open a .0m file (Ctrl/Cmd+O)" AutomationProperties.Name="Open file"
+                  IsVisible="{Binding HasNoDocument}">
+            <Path Classes="icon" Data="{StaticResource IconFolder}" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ================= Body ================= -->
+    <Grid Grid.Row="1" ColumnDefinitions="232,1,*,1,320">
+
+      <!-- ===== Left sidebar: files in the folder + container info ===== -->
+      <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" Padding="10,14">
+        <DockPanel>
+          <Border DockPanel.Dock="Bottom" Classes="card" Background="{StaticResource BgBrush}" Padding="12" IsVisible="{Binding HasDocument}">
+            <StackPanel Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Path Classes="icon" Data="{StaticResource IconKey}" Stroke="{StaticResource AttrBrush}" />
+                <TextBlock Text="Encryption" FontWeight="SemiBold" VerticalAlignment="Center" />
+              </StackPanel>
+              <StackPanel Spacing="3">
+                <TextBlock Classes="muted small" Text="{Binding FormatText}" TextWrapping="Wrap" />
+                <TextBlock Classes="mono small muted" Text="{Binding SeedText, StringFormat='seed {0}', Mode=OneWay}" />
+                <TextBlock Classes="faint small" TextWrapping="Wrap" Text="The original seed is always reused on save; a different seed can crash the client." />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Spacing="6">
+            <Grid ColumnDefinitions="*,Auto" Margin="6,0">
+              <TextBlock Classes="section" Text="GAME DATA" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Classes="icon small" Command="{Binding OpenCommand}" ToolTip.Tip="Open a .0m file (Ctrl/Cmd+O)" AutomationProperties.Name="Open file">
+                <Path Classes="icon" Data="{StaticResource IconPlus}" />
+              </Button>
+            </Grid>
+            <TextBlock Classes="mono faint" FontSize="11.5" Margin="6,0,6,4" Text="{Binding FolderName}" IsVisible="{Binding HasDocument}" TextTrimming="CharacterEllipsis" />
+            <ItemsControl ItemsSource="{Binding Files}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:FileEntryViewModel">
+                  <Button Classes="row" Classes.selected="{Binding IsActive}" Command="{Binding OpenCommand}" ToolTip.Tip="{Binding Path}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                      <Path Classes="icon" Data="{StaticResource IconLock}" Stroke="{StaticResource AttrBrush}" />
+                      <TextBlock Grid.Column="1" Classes="mono" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" IsVisible="{Binding IsModified}">
+                        <Ellipse Classes="dot" />
+                        <TextBlock Text="edited" FontSize="11" Foreground="{StaticResource AttrBrush}" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Grid>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Spacing="6" IsVisible="{Binding HasNoDocument}" Margin="0,8,0,0">
+              <TextBlock Classes="section" Text="RECENT" Margin="6,0" IsVisible="{Binding HasRecentFiles}" />
+              <ItemsControl ItemsSource="{Binding RecentFiles}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:FileEntryViewModel">
+                    <Button Classes="row" Command="{Binding OpenCommand}" ToolTip.Tip="{Binding Path}">
+                      <StackPanel Spacing="1">
+                        <TextBlock Classes="mono" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Classes="faint" FontSize="11" Text="{Binding Folder}" TextTrimming="PathSegmentEllipsis" />
+                      </StackPanel>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+
+      <!-- ===== Center: views + problems ===== -->
+      <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- Tab bar + search -->
+        <Border Grid.Row="0" Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,0">
+          <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding HasDocument}" Height="40">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Button Classes="tab" Classes.active="{Binding IsTreeView}" Content="Tree" Command="{Binding SelectViewCommand}" CommandParameter="{x:Static vm:EditorView.Tree}" />
+              <Button Classes="tab" Classes.active="{Binding IsTableView}" Content="Table" Command="{Binding SelectViewCommand}" CommandParameter="{x:Static vm:EditorView.Table}" />
+              <Button Classes="tab" Classes.active="{Binding IsXmlView}" Content="Raw XML" Command="{Binding SelectViewCommand}" CommandParameter="{x:Static vm:EditorView.Xml}" />
+              <Button Classes="tab" Classes.active="{Binding IsChangesView}" Command="{Binding SelectViewCommand}" CommandParameter="{x:Static vm:EditorView.Changes}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="Changes" VerticalAlignment="Center" />
+                  <Border Classes="pill amber" IsVisible="{Binding HasChanges}">
+                    <TextBlock Text="{Binding ChangeCount}" />
+                  </Border>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+              <TextBlock Classes="faint small" Text="{Binding SearchStatus}" VerticalAlignment="Center" />
+              <Panel Width="260">
+                <TextBox x:Name="SearchBox" Classes="search" Text="{Binding SearchText}" PlaceholderText="Find tag, attribute, value…" ToolTip.Tip="Enter = next match, Shift+Enter = previous, Esc = clear"
+                         AutomationProperties.Name="Find element, attribute or value" />
+                <Path Classes="icon" Data="{StaticResource IconSearch}" Stroke="{StaticResource TextMutedBrush}" HorizontalAlignment="Left" Margin="9,0,0,0" IsHitTestVisible="False" />
+              </Panel>
+              <Button Classes="icon" Command="{Binding ToggleReplaceCommand}" ToolTip.Tip="Replace…" AutomationProperties.Name="Replace">
+                <Path Classes="icon" Data="{StaticResource IconReplace}" />
+              </Button>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- Replace bar -->
+        <Border Grid.Row="1" IsVisible="{Binding IsReplaceVisible}" Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,8">
+          <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+            <TextBlock Classes="muted small" VerticalAlignment="Center" Text="{Binding SearchText, StringFormat='Replace values matching “{0}” with', Mode=OneWay}" />
+            <TextBox Classes="mono" Width="220" MinHeight="30" Height="30" Padding="8,4" Text="{Binding ReplaceText}" PlaceholderText="new value" />
+            <CheckBox IsChecked="{Binding ReplaceWholeValue}" Content="Whole value only" ToolTip.Tip="Only replace values that are exactly the search text (safer for IP addresses)" />
+            <Button Content="Replace all" Command="{Binding ReplaceAllCommand}" IsEnabled="{Binding HasSearchText}" />
+          </StackPanel>
+        </Border>
+
+        <!-- Views -->
+        <Panel Grid.Row="2">
+          <!-- Welcome / empty state -->
+          <StackPanel IsVisible="{Binding HasNoDocument}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="14" MaxWidth="440">
+            <Viewbox Width="44" Height="44" HorizontalAlignment="Center">
+              <Path Data="{StaticResource IconLogo}" Width="24" Height="24" Stroke="{StaticResource AttrBrush}" StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round" />
+            </Viewbox>
+            <TextBlock Text="Open a TAAN config to start" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <TextBlock Classes="muted" TextWrapping="Wrap" TextAlignment="Center"
+                       Text="Pick taan_server.0m from the game's data folder. It is decrypted in memory only; saving re-encrypts it with its original seed and keeps the first version as a .bak backup." />
+            <Button Classes="primary" HorizontalAlignment="Center" Command="{Binding OpenCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Path Classes="icon" Data="{StaticResource IconFolder}" />
+                <TextBlock Text="Open .0m file…" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+
+          <!-- Tree -->
+          <TreeView x:Name="Tree" IsVisible="{Binding IsTreeView}" ItemsSource="{Binding RootNodes}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                    Padding="8" Background="Transparent">
+            <TreeView.Styles>
+              <Style Selector="TreeViewItem" x:DataType="vm:NodeViewModel">
+                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+              </Style>
+            </TreeView.Styles>
+            <TreeView.ItemTemplate>
+              <TreeDataTemplate x:DataType="vm:NodeViewModel" ItemsSource="{Binding Children}">
+                <Border Padding="4,2" CornerRadius="4" Background="Transparent" Classes.match="{Binding IsMatch}">
+                  <Border.Styles>
+                    <Style Selector="Border.match">
+                      <Setter Property="Background" Value="{StaticResource MatchBrush}" />
+                    </Style>
+                  </Border.Styles>
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Classes="mono" VerticalAlignment="Center">
+                      <Run Text="&lt;" Foreground="{StaticResource PunctuationBrush}" /><Run Text="{Binding DisplayName}" Foreground="{StaticResource TagBrush}" />
+                    </TextBlock>
+                    <ItemsControl ItemsSource="{Binding Chips}" VerticalAlignment="Center">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Orientation="Horizontal" Spacing="10" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AttributeChip">
+                          <TextBlock Classes="mono">
+                            <Run Text="{Binding Key}" Foreground="{StaticResource AttrBrush}" /><Run Text="=" Foreground="{StaticResource PunctuationBrush}" /><Run Text="{Binding Value, StringFormat='&quot;{0}&quot;', Mode=OneWay}" Foreground="{StaticResource StringBrush}" />
+                          </TextBlock>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Classes="mono faint" Text="{Binding MoreLabel}" VerticalAlignment="Center" />
+                    <TextBlock Classes="faint small" Text="{Binding ChildCountLabel}" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding IsChanged}" VerticalAlignment="Center">
+                      <Ellipse Classes="dot" />
+                      <TextBlock Text="edited" FontSize="11.5" Foreground="{StaticResource AttrBrush}" />
+                    </StackPanel>
+                    <Path Classes="icon" Data="{StaticResource IconAlert}" Stroke="{StaticResource ErrorBrush}" IsVisible="{Binding HasError}" ToolTip.Tip="Has problems — see Problems panel" />
+                  </StackPanel>
+                </Border>
+              </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+          </TreeView>
+
+          <Panel IsVisible="{Binding IsTableView}">
+            <views:TablePane DataContext="{Binding Table}" />
+          </Panel>
+          <views:XmlPane IsVisible="{Binding IsXmlView}" />
+          <views:ChangesPane IsVisible="{Binding IsChangesView}" />
+        </Panel>
+
+        <!-- Problems -->
+        <Border Grid.Row="3" Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="16,10,16,12"
+                IsVisible="{Binding HasDocument}">
+          <StackPanel Spacing="8">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Classes="section" Text="PROBLEMS" VerticalAlignment="Center" />
+              <Border Classes="pill">
+                <TextBlock Text="{Binding ProblemCount}" />
+              </Border>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasNoProblems}">
+              <Path Classes="icon" Data="{StaticResource IconCheck}" Stroke="{StaticResource StringBrush}" StrokeThickness="1.7" />
+              <TextBlock Classes="muted" Text="Well-formed tree, no validation problems. Safe to re-encrypt." VerticalAlignment="Center" />
+            </StackPanel>
+            <ScrollViewer MaxHeight="150" IsVisible="{Binding HasProblems}">
+              <ItemsControl ItemsSource="{Binding Problems}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:ProblemItemViewModel">
+                    <Button Classes="row" Margin="-8,0" Command="{Binding GoCommand}">
+                      <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Path Classes="icon" Data="{StaticResource IconAlert}" Stroke="{StaticResource ErrorBrush}" IsVisible="{Binding IsError}" />
+                        <Path Classes="icon" Data="{StaticResource IconWarning}" Stroke="{StaticResource AttrBrush}" IsVisible="{Binding IsWarning}" />
+                        <TextBlock Text="{Binding Message}" VerticalAlignment="Center" />
+                        <TextBlock Classes="mono small muted" Text="{Binding Location}" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <GridSplitter Grid.Column="3" ResizeDirection="Columns" />
+
+      <!-- ===== Inspector ===== -->
+      <views:InspectorView Grid.Column="4" DataContext="{Binding Inspector}" />
+    </Grid>
+
+    <!-- ================= Footer ================= -->
+    <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="16,6">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="18" IsVisible="{Binding HasDocument}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Path Classes="icon" Data="{StaticResource IconLock}" Stroke="{StaticResource AttrBrush}" />
+            <TextBlock Text="Re-encrypts on save" FontSize="12" Foreground="{StaticResource AttrBrush}" VerticalAlignment="Center" />
+          </StackPanel>
+          <TextBlock Classes="muted small" Text="{Binding SeedText, StringFormat='Seed {0} (original)', Mode=OneWay}" VerticalAlignment="Center" />
+          <TextBlock Classes="muted small" Text="UTF-16LE" VerticalAlignment="Center" />
+          <TextBlock Classes="muted small" Text="{Binding ChannelSummary}" VerticalAlignment="Center" />
+        </StackPanel>
+        <TextBlock Grid.Column="1" Classes="muted small" Text="{Binding StatusMessage}" Margin="24,0" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" VerticalAlignment="Center" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="18" IsVisible="{Binding HasDocument}">
+          <TextBlock Classes="muted small" Text="{Binding ChangeLabel}" VerticalAlignment="Center" />
+          <TextBlock Classes="muted small" Text="{Binding ProblemLabel}" VerticalAlignment="Center" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

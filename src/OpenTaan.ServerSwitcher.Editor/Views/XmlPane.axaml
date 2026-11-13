@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OpenTaan.ServerSwitcher.Editor.ViewModels"
+             xmlns:ae="using:AvaloniaEdit"
+             x:Class="OpenTaan.ServerSwitcher.Editor.Views.XmlPane"
+             x:DataType="vm:MainWindowViewModel">
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Padding="16,8" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,0,0,1">
+      <TextBlock Classes="muted small" TextWrapping="Wrap"
+                 Text="Read-only XML view of the decrypted tree. Edit in Tree, Table or the inspector; use Export to save plain XML." />
+    </Border>
+    <ae:TextEditor x:Name="Editor"
+                   IsReadOnly="True"
+                   ShowLineNumbers="True"
+                   WordWrap="False"
+                   Background="Transparent"
+                   Foreground="{StaticResource TextBrush}"
+                   LineNumbersForeground="{StaticResource TextFaintBrush}"
+                   FontFamily="{StaticResource MonoFont}"
+                   FontSize="12.5"
+                   Padding="8"
+                   HorizontalScrollBarVisibility="Auto"
+                   VerticalScrollBarVisibility="Auto" />
+  </DockPanel>
+</UserControl>
