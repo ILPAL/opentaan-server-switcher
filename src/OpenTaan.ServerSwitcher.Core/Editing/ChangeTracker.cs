@@ -158,10 +158,14 @@ public static class ChangeTracker
                 continue;
             }
 
-            var index = i;
+            var position = i;
             changes.Add(new ConfigChange(
                 ChangeKind.ElementRemoved, node, childSnap.Path, childSnap.Name, null, null,
-                () => new InsertNodeCommand(node, baseline.Rebuild(childId), index, $"Restore <{childSnap.Name}>")));
+                () => new InsertNodeCommand(
+                    node,
+                    baseline.Rebuild(childId),
+                    RestoreIndex(snap.ChildIds, position, node.Children.Select(c => c.Id).ToList()),
+                    $"Restore <{childSnap.Name}>")));
         }
 
         foreach (var child in node.Children)
@@ -209,10 +213,33 @@ public static class ChangeTracker
                 continue;
             }
 
-            var index = i;
+            var position = i;
+            var originalIds = snap.Attributes.Select(a => a.Id).ToList();
             changes.Add(new ConfigChange(
                 ChangeKind.AttributeRemoved, node, path, original.Key, original.Value, null,
-                () => new InsertAttributeCommand(node, new ConfigAttribute(original.Id, original.Key, original.Value), index)));
+                () => new InsertAttributeCommand(
+                    node,
+                    new ConfigAttribute(original.Id, original.Key, original.Value),
+                    RestoreIndex(originalIds, position, node.Attributes.Select(a => a.Id).ToList()))));
         }
+    }
+
+    /// <summary>
+    /// Where to re-insert the item that was at <paramref name="position"/> in <paramref name="originalIds"/>:
+    /// right after the nearest earlier original sibling that is still present, or at the start when there is none.
+    /// Computed when the revert runs, so restoring removed siblings in any order recreates the original order.
+    /// </summary>
+    private static int RestoreIndex(IReadOnlyList<int> originalIds, int position, List<int> currentIds)
+    {
+        for (var j = position - 1; j >= 0; j--)
+        {
+            var index = currentIds.IndexOf(originalIds[j]);
+            if (index >= 0)
+            {
+                return index + 1;
+            }
+        }
+
+        return 0;
     }
 }
