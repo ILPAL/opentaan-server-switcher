@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Stroke icons on a 16×16 grid (from the design). Render with the "icon" Path class. -->
+  <StreamGeometry x:Key="IconLock">M5,7 H11 A1.5,1.5 0 0 1 12.5,8.5 V12 A1.5,1.5 0 0 1 11,13.5 H5 A1.5,1.5 0 0 1 3.5,12 V8.5 A1.5,1.5 0 0 1 5,7 Z M5.5,7 V5 A2.5,2.5 0 0 1 10.5,5 V7</StreamGeometry>
+  <StreamGeometry x:Key="IconUndo">M5,3 L2,6 L5,9 M2,6 H9.5 A3.5,3.5 0 0 1 9.5,13 H7</StreamGeometry>
+  <StreamGeometry x:Key="IconRedo">M11,3 L14,6 L11,9 M14,6 H6.5 A3.5,3.5 0 0 0 6.5,13 H9</StreamGeometry>
+  <StreamGeometry x:Key="IconDownload">M8,2 V10 M4.5,6.5 L8,10 L11.5,6.5 M3,13.5 H13</StreamGeometry>
+  <StreamGeometry x:Key="IconPlus">M8,3 V13 M3,8 H13</StreamGeometry>
+  <StreamGeometry x:Key="IconSearch">M2.5,7 A4.5,4.5 0 1 0 11.5,7 A4.5,4.5 0 1 0 2.5,7 Z M10.5,10.5 L14,14</StreamGeometry>
+  <StreamGeometry x:Key="IconCheck">M3,8.5 L6,11.5 L13,4.5</StreamGeometry>
+  <StreamGeometry x:Key="IconAlert">M2,8 A6,6 0 1 0 14,8 A6,6 0 1 0 2,8 Z M8,5 V8.5 M8,11 H8.01</StreamGeometry>
+  <StreamGeometry x:Key="IconWarning">M8,2.5 L14,13 H2 Z M8,6.5 V9.5 M8,11.5 H8.01</StreamGeometry>
+  <StreamGeometry x:Key="IconKey">M2.5,10.5 A3,3 0 1 0 8.5,10.5 A3,3 0 1 0 2.5,10.5 Z M7.6,8.4 L13,3 M11,5 L13,7</StreamGeometry>
+  <StreamGeometry x:Key="IconClose">M4,4 L12,12 M12,4 L4,12</StreamGeometry>
+  <StreamGeometry x:Key="IconChevronRight">M6,4 L10,8 L6,12</StreamGeometry>
+  <StreamGeometry x:Key="IconSwitch">M2,5.5 H12 M9.5,3 L12,5.5 L9.5,8 M14,10.5 H4 M6.5,8 L4,10.5 L6.5,13</StreamGeometry>
+  <StreamGeometry x:Key="IconTrash">M2.5,4.5 H13.5 M6,4.5 V3 H10 V4.5 M4,4.5 L4.8,13.5 H11.2 L12,4.5 M6.8,7 V11 M9.2,7 V11</StreamGeometry>
+  <StreamGeometry x:Key="IconCopy">M6,5 H12.5 V13.5 H6 Z M4,11 H3.5 V2.5 H10 V3</StreamGeometry>
+  <StreamGeometry x:Key="IconFolder">M2,4.5 A1,1 0 0 1 3,3.5 H6.5 L8,5 H13 A1,1 0 0 1 14,6 V12 A1,1 0 0 1 13,13 H3 A1,1 0 0 1 2,12 Z</StreamGeometry>
+  <StreamGeometry x:Key="IconFile">M4,2.5 H9.5 L12.5,5.5 V13.5 H4 Z M9.5,2.5 V5.5 H12.5</StreamGeometry>
+  <StreamGeometry x:Key="IconSave">M3,2.5 H11 L13.5,5 V13.5 H3 Z M5.5,2.5 V6 H10.5 V2.5 M5.5,13.5 V9.5 H10.5 V13.5</StreamGeometry>
+  <StreamGeometry x:Key="IconReplace">M2.5,5 H10 M7.5,2.5 L10,5 L7.5,7.5 M13.5,11 H6 M8.5,8.5 L6,11 L8.5,13.5</StreamGeometry>
+  <!-- App mark: </> brackets around a padlock (24×24 grid). -->
+  <StreamGeometry x:Key="IconLogo">M7,6 L2,12 L7,18 M17,6 L22,12 L17,18 M9.7,11 H14.3 A1.2,1.2 0 0 1 15.5,12.2 V15.8 A1.2,1.2 0 0 1 14.3,17 H9.7 A1.2,1.2 0 0 1 8.5,15.8 V12.2 A1.2,1.2 0 0 1 9.7,11 Z M10,11 V9.5 A2,2 0 0 1 14,9.5 V11</StreamGeometry>
+</ResourceDictionary>

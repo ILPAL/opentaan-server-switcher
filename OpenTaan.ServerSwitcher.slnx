@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OpenTaan.ServerSwitcher.Cli/OpenTaan.ServerSwitcher.Cli.csproj" />
+    <Project Path="src/OpenTaan.ServerSwitcher.Core/OpenTaan.ServerSwitcher.Core.csproj" />
+    <Project Path="src/OpenTaan.ServerSwitcher.Editor/OpenTaan.ServerSwitcher.Editor.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OpenTaan.ServerSwitcher.Core.Tests/OpenTaan.ServerSwitcher.Core.Tests.csproj" />
+  </Folder>
+</Solution>

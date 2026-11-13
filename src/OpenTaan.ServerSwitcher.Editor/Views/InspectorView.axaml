@@ -1,0 +1,129 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OpenTaan.ServerSwitcher.Editor.ViewModels"
+             x:Class="OpenTaan.ServerSwitcher.Editor.Views.InspectorView"
+             x:DataType="vm:InspectorViewModel">
+
+  <Border Background="{StaticResource SurfaceBrush}">
+    <Panel>
+      <TextBlock Classes="muted" Text="Select an element to edit it." IsVisible="{Binding !HasSelection}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+      <DockPanel IsVisible="{Binding HasSelection}">
+        <!-- Element actions -->
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,*" ColumnSpacing="8" Margin="16">
+          <Button Command="{Binding DuplicateCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Path Classes="icon" Data="{StaticResource IconCopy}" />
+              <TextBlock Text="Duplicate" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <Button Grid.Column="1" Classes="danger" Command="{Binding DeleteCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Path Classes="icon" Data="{StaticResource IconTrash}" />
+              <TextBlock Text="Delete element" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </Grid>
+
+        <ScrollViewer>
+          <StackPanel Spacing="20" Margin="16,16,16,0">
+            <!-- Element -->
+            <StackPanel Spacing="6">
+              <TextBlock Classes="section" Text="SELECTED ELEMENT" />
+              <TextBox Classes="mono" Text="{Binding ElementName}" FontSize="15" FontWeight="Medium" Foreground="{StaticResource TagBrush}"
+                       ToolTip.Tip="Element name" AutomationProperties.Name="Element name" />
+              <TextBlock Classes="mono small muted" Text="{Binding Path}" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- Attributes -->
+            <StackPanel Spacing="14">
+              <TextBlock Classes="subhead" Text="Attributes" />
+              <ItemsControl ItemsSource="{Binding Fields}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Spacing="14" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:AttributeFieldViewModel">
+                    <StackPanel Spacing="6">
+                      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <TextBlock Classes="mono attr" Text="{Binding Key}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsChanged}" VerticalAlignment="Center">
+                          <TextBlock Classes="muted" FontSize="11.5" VerticalAlignment="Center" IsVisible="{Binding OriginalValue, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                            <Run Text="was " /><Run Text="{Binding OriginalValue}" FontFamily="{StaticResource MonoFont}" />
+                          </TextBlock>
+                          <Button Classes="link" FontSize="11.5" Content="Revert" Command="{Binding RevertCommand}" />
+                        </StackPanel>
+                        <Button Grid.Column="2" Classes="icon small" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove attribute" AutomationProperties.Name="Remove attribute">
+                          <Path Classes="icon" Data="{StaticResource IconClose}" />
+                        </Button>
+                      </Grid>
+                      <TextBox Classes="mono" Classes.changed="{Binding IsChanged}" Classes.error="{Binding HasError}"
+                               Text="{Binding Value}" AutomationProperties.Name="{Binding Key}" />
+                      <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" TextWrapping="Wrap" />
+                      <TextBlock Classes="warning" Text="{Binding Warning}" IsVisible="{Binding HasWarning}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+              <Button Classes="dashed" HorizontalAlignment="Stretch" Command="{Binding BeginAddAttributeCommand}" IsVisible="{Binding !IsAddingAttribute}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Path Classes="icon" Data="{StaticResource IconPlus}" />
+                  <TextBlock Text="Add attribute" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+
+              <Border Classes="well" IsVisible="{Binding IsAddingAttribute}">
+                <StackPanel Spacing="8">
+                  <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <TextBox Classes="mono" Text="{Binding NewKey}" PlaceholderText="key" AutomationProperties.Name="New attribute key" />
+                    <TextBox Grid.Column="1" Classes="mono" Text="{Binding NewValue}" PlaceholderText="value" AutomationProperties.Name="New attribute value" />
+                  </Grid>
+                  <TextBlock Classes="error" Text="{Binding AddError}" IsVisible="{Binding AddError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                  <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                    <Button Classes="ghost" Content="Cancel" Command="{Binding CancelAddAttributeCommand}" />
+                    <Button Classes="primary" Content="Add" Command="{Binding ConfirmAddAttributeCommand}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+
+            <!-- Metadata (rarely used; empty in all known files) -->
+            <StackPanel Spacing="6">
+              <TextBlock Classes="subhead" Text="Metadata" />
+              <TextBox Classes="mono" Text="{Binding Metadata}" PlaceholderText="(empty)" AutomationProperties.Name="Metadata" />
+            </StackPanel>
+
+            <!-- Children -->
+            <StackPanel Spacing="8">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Classes="subhead" Text="{Binding ChildrenHeader}" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Classes="icon small" Command="{Binding AddChildCommand}" ToolTip.Tip="Add a child element (copies the keys of the last child)" AutomationProperties.Name="Add child element">
+                  <Path Classes="icon" Data="{StaticResource IconPlus}" />
+                </Button>
+              </Grid>
+              <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" ClipToBounds="True"
+                      IsVisible="{Binding Children.Count}">
+                <ItemsControl ItemsSource="{Binding Children}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ChildSummary">
+                      <Button Classes="row" CornerRadius="0" Padding="10,8"
+                              Command="{Binding $parent[ItemsControl].((vm:InspectorViewModel)DataContext).SelectChildCommand}" CommandParameter="{Binding}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" ToolTip.Tip="{Binding Summary}">
+                          <TextBlock Classes="mono tag" FontSize="12" Text="{Binding Name}" />
+                          <TextBlock Grid.Column="1" Classes="mono muted" FontSize="12" Text="{Binding Summary}" TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </DockPanel>
+    </Panel>
+  </Border>
+</UserControl>

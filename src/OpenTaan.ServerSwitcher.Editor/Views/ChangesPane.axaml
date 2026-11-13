@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OpenTaan.ServerSwitcher.Editor.ViewModels"
+             x:Class="OpenTaan.ServerSwitcher.Editor.Views.ChangesPane"
+             x:DataType="vm:MainWindowViewModel">
+
+  <ScrollViewer>
+    <Grid Margin="16">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MaxWidth="860" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+    <StackPanel Spacing="10">
+      <Border IsVisible="{Binding HasNoChanges}" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="28">
+        <StackPanel Spacing="6">
+          <TextBlock Text="No changes yet" FontWeight="SemiBold" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" Text="Edits you make appear here. They are written back and re-encrypted only when you save." />
+        </StackPanel>
+      </Border>
+
+      <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding HasChanges}">
+        <TextBlock Classes="muted small" VerticalAlignment="Center" Text="{Binding ChangeLabel}" />
+        <Button Grid.Column="1" Classes="danger" Content="Discard all changes" Command="{Binding DiscardAllChangesCommand}"
+                ToolTip.Tip="Revert everything since the last save (Undo brings it back)" />
+      </Grid>
+
+      <ItemsControl ItemsSource="{Binding Changes}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Spacing="10" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:ChangeItemViewModel">
+            <Border Classes="card" Padding="16,14">
+              <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                  <StackPanel Spacing="2">
+                    <Button Classes="link" Command="{Binding GoCommand}" ToolTip.Tip="Show in tree">
+                      <TextBlock Classes="mono small" Text="{Binding Path}" Foreground="{StaticResource TextMutedBrush}" TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <TextBlock Classes="faint" FontSize="11" Text="{Binding Kind}" />
+                  </StackPanel>
+                  <Button Grid.Column="2" Height="28" Padding="10,0" FontSize="12" Background="Transparent" Content="Revert" Command="{Binding RevertCommand}" />
+                </Grid>
+                <StackPanel Spacing="2">
+                  <Border IsVisible="{Binding HasRemovedLine}" Background="{StaticResource DiffRemovedBgBrush}" CornerRadius="4" Padding="10,4">
+                    <TextBlock Classes="mono" Foreground="{StaticResource ErrorSoftBrush}" Text="{Binding RemovedLine, StringFormat='−  {0}', Mode=OneWay}" TextWrapping="Wrap" />
+                  </Border>
+                  <Border IsVisible="{Binding HasAddedLine}" Background="{StaticResource DiffAddedBgBrush}" CornerRadius="4" Padding="10,4">
+                    <TextBlock Classes="mono" Foreground="{StaticResource DiffAddedTextBrush}" Text="{Binding AddedLine, StringFormat='+  {0}', Mode=OneWay}" TextWrapping="Wrap" />
+                  </Border>
+                </StackPanel>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</UserControl>
