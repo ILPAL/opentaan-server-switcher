@@ -1,0 +1,23 @@
+# .NET build output
+bin/
+obj/
+artifacts/
+*.user
+*.suo
+.vs/
+TestResults/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor backups created next to edited game files
+*.0m.bak
+
+# Game files: the stock taan_server.0m belongs to the game, so it is never committed.
+# Copy it into tests/OpenTaan.ServerSwitcher.Core.Tests/fixtures/ to run the full test suite.
+*.0m
+tests/OpenTaan.ServerSwitcher.Core.Tests/fixtures/*
+
+# IDE settings
+.idea/
